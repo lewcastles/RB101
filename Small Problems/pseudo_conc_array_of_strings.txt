@@ -1,0 +1,24 @@
+read array of strings 
+create empty storage string to hold concatenated value
+iterate through the array
+  - concatenate current string with the storage string
+
+after iteration print storage string
+
+-----------------------------------------------------------
+
+START
+
+READ array
+SET storage = ""
+SET iterator = 1
+
+
+WHILE itr <= length of array
+storage = storage + current string in array
+iterator = iterator +1
+
+
+PRINT storage
+
+END

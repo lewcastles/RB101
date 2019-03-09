@@ -1,0 +1,14 @@
+given two integers
+perform addition on integers store as new integer
+print new integer
+
+-----------------------------------------------------------
+
+START
+
+READ n1
+READ n2
+SET n3 = n1 + n2
+PRINT n3
+
+END

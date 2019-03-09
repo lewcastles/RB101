@@ -1,0 +1,26 @@
+while user wants to add more values
+ask for collection of numbers
+take collection and save largest value
+ask for another collection of numbers
+
+return all of the largest values
+
+START
+
+SET largest_vals = []
+SET keep_looping = true
+
+WHILE keep_looping == true
+GET "enter collection"
+SET collection
+SET large_val = SUBPROCESS get_largest_from_collection(collection)
+largest_vals.push(large_val)
+GET "Would you like to enter another collection Y?N"
+IF "y"
+  keep_looping == true
+ELSE
+  keep_looping == false
+
+PRINT largest_vals
+
+END

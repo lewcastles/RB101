@@ -1,0 +1,22 @@
+take an array of integers
+create storage array
+iterate through the array
+if element index is even push onto the storage array
+else do nothing and move to next element
+return storage array containing every other element
+
+--------------------------------------------------------------
+
+START
+
+READ arrayofints
+SET storage=[]
+SET iterator=1
+
+WHILE iterator <+ length of arrayofints
+IF current element is an even index
+  push elements value to storage array
+else
+  do nothing
+
+PRINT storage
