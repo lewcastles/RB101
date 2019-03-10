@@ -1,7 +1,9 @@
 # add recognisable prompt
+# fix NaN if APR is set to 0, allow zero rate but just make it equal payments
 # add users name to personalise it
 # add examples to guide user and less gener correction when wrong input detected
 # add ability to select language using yml
+# add total amount to repay
 
 def valid_currency_format?(num)
   num.match(/^[+]?[$]?[0-9]*[.]?[0-9]{0,2}$/) && !num.empty?
@@ -49,7 +51,7 @@ def retrieve_loan_duration
   end
 end
 
-# sanitized inputs from user in correct units
+# sanitized inputs from user in formula correct units
 p = retrieve_loan_amt
 j = retrieve_mnthly_int_rate
 n = retrieve_loan_duration
