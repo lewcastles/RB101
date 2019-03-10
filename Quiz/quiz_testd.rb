@@ -3,7 +3,7 @@ def string_lengths(sentence)
   lengths = []
   counter = 1
 
-  until counter == strings.size do
+  until counter == strings.size
     word_length = strings[counter - 1].length
     lengths.push(word_length)
     counter += 1
@@ -14,7 +14,7 @@ end
 
 # Is a method OK
 # Takes 1 argument, a sentence string OK
-# Returns array of integers FAIL runs into issues with single word or empty array
+# Returns array of integers FAIL
 # Value of each int is equal to the length of the word in pos of sentence
 
 # CASE 1 Provided Test
