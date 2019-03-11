@@ -1,8 +1,7 @@
-# add examples to guide user and less gener correction when wrong input detected
-# allow commas in currency regex
+# correct error messages - work on check logic
 
 def valid_currency_format?(num)
-  num.match(/^[+]?[$]?[0-9]*[.]?[0-9]{0,2}$/) && !num.empty?
+  num.match(/^[+]?[$]?[0-9]*[.]?[0-9]{0,2}$/) && !num.empty? && !(num == '0')
 end
 
 def valid_percentage_format?(num)
@@ -21,9 +20,14 @@ def retrieve_loan_amt
   loop do
     prompt('Please enter loan amount (in USD) with no commas (for example 12345.67)')
     loan_amt = gets.chomp
+    puts
     return loan_amt.delete('$').to_f if valid_currency_format?(loan_amt)
 
-    prompt('Not a valid number. Please try again.')
+    if loan_amt == '0' || loan_amt.to_i < 0
+    prompt('Loan amount must be greater than zero.')
+    else
+    prompt('Not a valid amount of currency. Check for commas, please try again.')
+    end
   end
 end
 
@@ -31,19 +35,24 @@ def retrieve_mnthly_int_rate
   loop do
     prompt('Please enter loan APR (in %)')
     apr_val = gets.chomp
+    puts
     return apr_val.delete('%').to_f / 1200 if valid_percentage_format?(apr_val)
-
-    prompt('Not a valid number. Please try again.')
+    if apr_val.to_i < 0
+      prompt('APR must not be negative. Please try again')
+    else
+      prompt('Not a valid number. Please try again.')
+    end
   end
 end
 
 def retrieve_loan_duration
   loop do
-    prompt('Please enter loan duration (in whole months)')
+    prompt('Please enter loan duration (in whole MONTHS)')
     duration = gets.chomp
+    puts
     return duration.to_i if valid_posinteger_format?(duration)
 
-    if duration.to_i < 0
+    if duration == '0' || duration.to_i < 0
       prompt('Loan must have duration, check zero or negative. Please try again.')
     else
       prompt('Not a valid number of whole months.')
@@ -55,6 +64,7 @@ def retrieve_username
   loop do
     prompt('Please enter your name:')
     name = gets.chomp
+    puts
     return name if !name.empty?
 
     prompt('We didnt catch your name, please try again')
@@ -62,13 +72,13 @@ def retrieve_username
 end
 
 def prompt_user_repeat
-  prompt('Would you like to calculate payments on another loan? (press Y to repeat calculation)')
+  prompt("Would you like to calculate payments on another loan? (input 'Y' to repeat calculation)")
   gets.chomp.match(/^[y]?$/i)
 end
 
 system "clear" or system "cls"
 puts '======Welcome to the Loan Calculator======'
-name = retrieve_username.capitalize
+name = retrieve_username.capitalize # didnt want to restrict inputs too much here, users can call themselves whatever.
 loop do
 prompt("#{name}, let us take a few moments to gather some required information")
 # retrieve sanitized inputs from user in formula correct units
