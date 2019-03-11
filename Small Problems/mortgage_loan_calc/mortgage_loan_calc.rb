@@ -1,4 +1,3 @@
-# correct error messages - work on check logic
 def prompt(msg)
   puts "=> #{msg}"
 end
@@ -9,12 +8,12 @@ def valid_currency_format?(num)
 end
 
 def valid_posinteger_format?(num)
-  num.match(/^[+]?[0-9]+$/) && !num.empty? && num != '0'
+  num.match(/^[+]?[0-9]+$/) && !num.empty? && !num.match(/^[$]?[0]*[.]?[0]{0,2}$/)
 end
 
 def valid_percentage_format?(num)
   num.match(/^[+]?[%]?[0-9]*[.]?[0-9]*[%]?$/) && !num.empty?\
-  && !num.match(/^[$]?[0]*[.]?[0]{0,2}$/)
+  
 end
 
 def zero_neg_notice(num)
@@ -100,10 +99,9 @@ loop do
       else
         p * (j / (1 - (1 + j)**-n)) # calculation from formula
       end
-  mnthly_payments = format('$%.2f', m)
-  total_to_pay = format('$%.2f', (m * n))
-
-  # format 2dp output, creates rounding errors, future improvement
+  mnthly_payments = format('$%.2f', m.round(2))
+  total_to_pay = format('$%.2f', m.round(2) * n)
+  # 2dp format possibly some rounding errors here, future improvement maybe.
 
   prompt("Thank you #{name}, your monthly payments will be #{mnthly_payments}")
   prompt("per month for #{n} months with a total repayment of #{total_to_pay}")
