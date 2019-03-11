@@ -85,7 +85,8 @@ end
 # MAIN PROCESS ----------------------------------------------------------------
 (system 'clear') || (system 'cls') # clear screen in multiple os?? for clarity
 
-name = retrieve_username.capitalize # users name, probably no restrictions
+# username, probably minimal validation here, not critical to function.
+name = retrieve_username.capitalize
 
 loop do
   prompt("#{name}, let us take a few moments to gather some information")
