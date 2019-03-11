@@ -8,12 +8,12 @@ def valid_currency_format?(num)
 end
 
 def valid_posinteger_format?(num)
-  num.match(/^[+]?[0-9]+$/) && !num.empty? && !num.match(/^[$]?[0]*[.]?[0]{0,2}$/)
+  num.match(/^[+]?[0-9]+$/) && !num.empty?\
+   && !num.match(/^[$]?[0]*[.]?[0]{0,2}$/)
 end
 
 def valid_percentage_format?(num)
-  num.match(/^[+]?[%]?[0-9]*[.]?[0-9]*[%]?$/) && !num.empty?\
-  
+  num.match(/^[+]?[%]?[0-9]*[.]?[0-9]*[%]?$/) && !num.empty?
 end
 
 def zero_neg_notice(num)
