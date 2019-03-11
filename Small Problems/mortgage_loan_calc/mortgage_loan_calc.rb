@@ -1,8 +1,5 @@
-# fix NaN if APR is set to 0, allow zero rate but just make it equal payments
-# add users name to personalise it
 # add examples to guide user and less gener correction when wrong input detected
-# add ability to select language using yml
-# add total amount to repay
+# allow commas in currency regex
 
 def valid_currency_format?(num)
   num.match(/^[+]?[$]?[0-9]*[.]?[0-9]{0,2}$/) && !num.empty?
@@ -13,7 +10,7 @@ def valid_percentage_format?(num)
 end
 
 def valid_posinteger_format?(num)
-  num.match(/^[+]?[1-9]+$/) && !num.empty?
+  num.match(/^[+]?[0-9]+$/) && !num.empty? && !num.to_i.zero?
 end
 
 def prompt(msg)
@@ -22,7 +19,7 @@ end
 
 def retrieve_loan_amt
   loop do
-    prompt('Please enter loan amount (in USD) for example: 12345.67:')
+    prompt('Please enter loan amount (in USD) with no commas (for example 12345.67)')
     loan_amt = gets.chomp
     return loan_amt.delete('$').to_f if valid_currency_format?(loan_amt)
 
@@ -54,15 +51,44 @@ def retrieve_loan_duration
   end
 end
 
-# sanitized inputs from user in formula correct units
+def retrieve_username
+  loop do
+    prompt('Please enter your name:')
+    name = gets.chomp
+    return name if !name.empty?
+
+    prompt('We didnt catch your name, please try again')
+  end
+end
+
+def prompt_user_repeat
+  prompt('Would you like to calculate payments on another loan? (press Y to repeat calculation)')
+  gets.chomp.match(/^[y]?$/i)
+end
+
+system "clear" or system "cls"
+puts '======Welcome to the Loan Calculator======'
+name = retrieve_username.capitalize
+loop do
+prompt("#{name}, let us take a few moments to gather some required information")
+# retrieve sanitized inputs from user in formula correct units
 p = retrieve_loan_amt
 j = retrieve_mnthly_int_rate
 n = retrieve_loan_duration
 
-# calculate monthly payments
-m = p * (j / (1 - (1 + j)**-n))
-puts m
+if j == 0.0
+  m = p / n # calculate interest-free equal payments
+else
+  m = p * (j / (1 - (1 + j)**-n)) # calculate using formula
+end
+mnthly_payments = m.round(2)
+total_to_repay = mnthly_payments*n
 
-result = m.round(2)
 
-prompt("Your monthly payments will be $#{result}") 
+prompt("Thank you #{name}, your monthly payments will be $%0.2f per month over #{n} months \n" % [mnthly_payments]) 
+prompt("with a total repayment of $%0.2f" % [total_to_repay])
+puts
+
+break if !prompt_user_repeat # user does not wish to repeat then break loop
+system "clear" or system "cls"
+end
