@@ -82,7 +82,8 @@ def prompt_user_repeat
   gets.chomp.match(/^[y]?$/i)
 end
 
-# MAIN PROCESS ----------------------------------------------------------------
+# MAIN PROCESS START --------------------------------------------------------
+
 (system 'clear') || (system 'cls') # clear screen in multiple os?? for clarity
 
 # username, probably minimal validation here, not critical to function.
