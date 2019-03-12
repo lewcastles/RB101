@@ -1,0 +1,17 @@
+en:
+  username_prompt: "Please enter your name:"
+  username_prompt_fail: "We did not catch your name. Please try again."
+  userchoice_prompt: |
+    SELECT YOUR MOVE, ENTER
+    R for Rock, 
+    P for Paper, 
+    SC for Scissors, 
+    L for Lizard, 
+    SP for Spock
+    ------------------------------------------------
+  userchoice_prompt_fail: "Input did not match valid move. Please try again. "
+  bestof_prompt: |
+    ENTER HOW MANY ROUNDS THE PLAYERS MUST WIN TO 
+    BECOME THE CHAMPION.
+    ------------------------------------------------
+  bestof_prompt_fail: "Oops, not a valid number of games."
