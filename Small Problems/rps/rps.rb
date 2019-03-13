@@ -1,22 +1,17 @@
 require 'yaml'
-LANGUAGE = 'en'
+LANGUAGE = 'en'.freeze
 MESSAGES = YAML.load_file('rps_messages.yml')
 
 WIN_CONDITIONS = {  'rock' => %w[scissors lizard],
                     'lizard' => %w[spock paper],
                     'spock' => %w[rock scissors],
                     'scissors' => %w[paper lizard],
-                    'paper' => %w[rock spock]
-                  }.freeze
+                    'paper' => %w[rock spock] }.freeze
 
-VALID_CHOICES = %w[r l sp sc p]
+VALID_CHOICES = %w[r l sp sc p].freeze
 
 def print_message(msg)
   puts MESSAGES[LANGUAGE][msg].to_s
-end
-
-def print_center(msg)
-  msg.center(50)
 end
 
 def player_won?(player_choice, computer_choice)
@@ -35,18 +30,6 @@ def valid_choice?(str)
   VALID_CHOICES.include?(str)
 end
 
-def display_refresh_game_header(user, user_score, computer_score, current_round)
-  (system 'clear') || (system 'cls')
-  puts '================================================'
-  puts 'Rock, Paper, Scissors, Lizard, Spock'.center(50)
-  puts "| ROUND #{current_round} |".center(50)
-  unless user.empty?
-    puts "#{user}: #{user_score}".center(50)
-    puts "COMPUTER: #{computer_score}".center(50) 
-  end
-  puts '================================================'
-end
-
 def retrieve_best_of_games
   loop do
     games = gets.chomp.to_i
@@ -59,10 +42,16 @@ end
 def retrieve_user_choice
   loop do
     choice = gets.chomp.downcase
-    return (WIN_CONDITIONS.keys.select { |key| key.start_with?(choice) }).join if valid_choice?(choice)
+    return (WIN_CONDITIONS.keys.select { |key| key.start_with?(choice) }).join\
+     if valid_choice?(choice)
 
     print_message('userchoice_prompt_fail')
   end
+end
+
+def retrieve_user_repeat
+  repeat = gets.chomp
+  repeat.match(/^[y]?$/i) && !repeat.empty?
 end
 
 def retrieve_username
@@ -78,56 +67,98 @@ def retrieve_computer_choice
   WIN_CONDITIONS.keys.sample
 end
 
+def display_champion(str, usersc, compsc)
+  if usersc > compsc
+    puts "#{str} IS THE CHAMPION!".center(50)
+  else
+    puts 'THE COMPUTER IS THE CHAMPION!'.center(50)
+    puts
+  end
+end
 
-user_name = ''
-number_of_games = 0
-round = 1
-user_score = 0
-computer_score = 0
+def display_round_winner(userchoice, computerchoice, username)
+  if player_won?(userchoice, computerchoice)
+    puts "#{username} TAKES THE ROUND!".center(50)
+  elsif userchoice == computerchoice
+    puts "IT'S A TIE!".center(50)
+  else
+    puts 'COMPUTER TAKES THE ROUND!'.center(50)
+  end
+  sleep(2)
+end
 
-display_refresh_game_header(user_name, user_score, computer_score, round)
+def increment_score_counters(userchoice, computerchoice)
+  score_arr = [0, 0]
+  if player_won?(userchoice, computerchoice)
+    score_arr[0] = 1
+  elsif userchoice == computerchoice
+    score_arr = [1, 1]
+  else
+    score_arr[1] = 1
+  end
+  score_arr
+end
+
+def display_current_play(userchoice, computerchoice, username)
+  puts "#{username}'s #{userchoice.upcase}".center(50)
+  sleep(1)
+  puts 'VS'.center(50)
+  sleep(1)
+  puts "COMPUTER'S #{computerchoice.upcase}".center(50)
+  sleep(1)
+end
+
+def display_refresh_game_header(user, userscore, compscore, current_round)
+  (system 'clear') || (system 'cls')
+  puts '================================================'
+  puts 'Rock, Paper, Scissors, Lizard, Spock'.center(50)
+
+  unless user.empty?
+    puts "| ROUND #{current_round} |".center(50)
+    puts "#{user}: #{userscore}".center(50)
+    puts "COMPUTER: #{compscore}".center(50)
+  end
+  puts '================================================'
+end
+
+# prompt then retrieve players name
+display_refresh_game_header('', '', '', '')
 print_message('username_prompt')
 user_name = retrieve_username
 
-display_refresh_game_header(user_name, user_score, computer_score, round)
-print_message('bestof_prompt')
-number_of_games = retrieve_best_of_games
-
 loop do
+  # set starting state for game
+  round = 1
+  user_score = 0
+  computer_score = 0
+  number_of_games = 1
+
+  # prompt then retrieve number of games to play to
   display_refresh_game_header(user_name, user_score, computer_score, round)
-  print_message('userchoice_prompt')
-  user_choice = retrieve_user_choice
-  computer_choice = retrieve_computer_choice
+  print_message('bestof_prompt')
+  number_of_games = retrieve_best_of_games
 
-  display_refresh_game_header(user_name, user_score, computer_score, round)
-  puts "#{user_name}'s #{user_choice.upcase}".center(50)
-  sleep(1)
+  # begin main game loop, break out once num of games reached
+  loop do
+    display_refresh_game_header(user_name, user_score, computer_score, round)
+    print_message('userchoice_prompt')
+    user_choice = retrieve_user_choice
+    computer_choice = retrieve_computer_choice
 
-  puts 'VS'.center(50)
-  sleep(1)
+    display_refresh_game_header(user_name, user_score, computer_score, round)
+    display_current_play(user_choice, computer_choice, user_name)
+    display_round_winner(user_choice, computer_choice, user_name)
+    incrementor_array = increment_score_counters(user_choice, computer_choice)
+    user_score += incrementor_array[0]
+    computer_score += incrementor_array[1]
 
-  puts "COMPUTER'S #{computer_choice.upcase}".center(50)
-  sleep(1)
-
-  if player_won?(user_choice, computer_choice)
-    puts "#{user_name} TAKES THE ROUND!".center(50)
-    user_score += 1
-  elsif user_choice==computer_choice
-    puts "IT'S A TIE!".center(50)
-    user_score += 1
-    computer_score += 1
-  else
-    puts 'COMPUTER TAKES THE ROUND!'.center(50)
-    computer_score += 1
+    round += 1
+    break if [user_score, computer_score].max == number_of_games
   end
-  sleep(2)
-  round += 1
-  break if [user_score, computer_score].max == number_of_games
-end
-display_refresh_game_header(user_name, user_score, computer_score, round)
-if user_score > computer_score
-  puts "#{user_name} IS THE CHAMPION!".center(50)
-  else
-  puts "THE COMPUTER IS THE CHAMPION!".center(50)
-end
 
+  display_refresh_game_header(user_name, user_score, computer_score, round)
+  display_champion(user_name, user_score, computer_score)
+
+  print_message('playanother_prompt')
+  break unless retrieve_user_repeat
+end

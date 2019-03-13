@@ -15,3 +15,7 @@ en:
     BECOME THE CHAMPION.
     ------------------------------------------------
   bestof_prompt_fail: "Oops, not a valid number of games."
+  playanother_prompt: |
+    Would you like to play another game?
+    'Y' to repeat, all other keys will close the program.
+  playanother_prompt_fail:
