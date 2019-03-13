@@ -30,6 +30,15 @@ def valid_choice?(str)
   VALID_CHOICES.include?(str)
 end
 
+def play_again?(str)
+  str.match(/^[y]?$/i) && !str.empty?
+end
+
+def is_tie?(score1, score2)
+  score1 == score2
+end
+
+
 def retrieve_best_of_games
   loop do
     games = gets.chomp.to_i
@@ -42,16 +51,11 @@ end
 def retrieve_user_choice
   loop do
     choice = gets.chomp.downcase
-    return (WIN_CONDITIONS.keys.select { |key| key.start_with?(choice) }).join\
-     if valid_choice?(choice)
-
+    if valid_choice?(choice)
+    return (WIN_CONDITIONS.keys.select { |key| key.start_with?(choice) }).join
+    end
     print_message('userchoice_prompt_fail')
   end
-end
-
-def retrieve_user_repeat
-  repeat = gets.chomp
-  repeat.match(/^[y]?$/i) && !repeat.empty?
 end
 
 def retrieve_username
@@ -79,7 +83,7 @@ end
 def display_round_winner(userchoice, computerchoice, username)
   if player_won?(userchoice, computerchoice)
     puts "#{username} TAKES THE ROUND!".center(50)
-  elsif userchoice == computerchoice
+  elsif is_tie?(userchoice, computerchoice)
     puts "IT'S A TIE!".center(50)
   else
     puts 'COMPUTER TAKES THE ROUND!'.center(50)
@@ -91,7 +95,7 @@ def increment_score_counters(userchoice, computerchoice)
   score_arr = [0, 0]
   if player_won?(userchoice, computerchoice)
     score_arr[0] = 1
-  elsif userchoice == computerchoice
+  elsif is_tie?(userchoice, computerchoice)
     score_arr = [1, 1]
   else
     score_arr[1] = 1
@@ -160,5 +164,5 @@ loop do
   display_champion(user_name, user_score, computer_score)
 
   print_message('playanother_prompt')
-  break unless retrieve_user_repeat
+  break unless play_again?(gets.chomp)
 end
