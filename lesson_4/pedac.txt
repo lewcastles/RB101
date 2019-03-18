@@ -1,0 +1,49 @@
+PROBLEM:
+Given a string, write a method `palindrome_substrings` which returns
+all the substrings from a given string which are palindromes. Consider
+palindrome words case sensitive. 
+Note 1: substring is any string contained inside a string
+Note 2: a palindrome is the same word forwards and backwards
+
+EXAMPLES:
+palindrome_substrings("supercalifragilisticexpialidocious") == ["ili"]
+palindrome_substrings("abcddcbA") == ["bcddcb", "cddc", "dd"]
+palindrome_substrings("palindrome") == []
+palindrome_substrings("") == []
+
+DATA STRUCTURE/RULES:
+input: string
+output: array (of strings)
+rules:
+- return only substrings which are palindromes.
+- palindrome words should be case sensitive, meaning "abBA"
+  is not a palindrome.
+
+
+ALGORITHM:
+------substrings method------------
+GET 
+INIT empty array arr
+SET start_idx=0
+LOOP WHILE start_idx< str.length -1
+  SET end_idx=start_idx+1
+  LOOP WHILE end_idx<str.length
+    if 
+    arr.push(str[start_idx..end_idx])
+    end_idx+=1
+  END
+  start_idx+=1
+END
+
+
+
+
+
+
+
+
+ispalindrome method
+IF str == str.reverse
+
+
+
