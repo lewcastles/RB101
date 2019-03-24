@@ -52,7 +52,7 @@ def retrieve_user_choice
   loop do
     choice = gets.chomp.downcase
     if valid_choice?(choice)
-    return (WIN_CONDITIONS.keys.select { |key| key.start_with?(choice) }).join
+      return (WIN_CONDITIONS.keys.select { |key| key.start_with?(choice) }).join
     end
     print_message('userchoice_prompt_fail')
   end
