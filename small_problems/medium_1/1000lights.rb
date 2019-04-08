@@ -15,6 +15,3 @@ def lights(int)
 end
 
 p lights(10)
-
-
-
