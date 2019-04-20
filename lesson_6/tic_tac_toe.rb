@@ -1,13 +1,13 @@
-require 'pry'
-
-INITIAL_MARKER = ' '.freeze
-PLAYER_MARKER = 'X'.freeze
-COMPUTER_MARKER = 'O'.freeze
+INITIAL_MARKER = ' '
+PLAYER_MARKER = 'X'
+COMPUTER_MARKER = 'O'
 WINNING_LINES = [
   [1, 2, 3], [4, 5, 6], [7, 8, 9],
   [1, 4, 7], [2, 5, 8], [3, 6, 9],
   [1, 5, 9], [3, 5, 7]
-].freeze
+]
+FIRST_PLAYER = 'choose'
+WIN_LIMIT = 5
 
 def prompt(msg)
   puts "=> #{msg}"
@@ -23,24 +23,39 @@ def joinor(arr, delim = ',', word = 'or')
   end.join
 end
 
-def display_scores(sco)
+def display_scores(info)
   system 'clear' || 'cls'
-  puts "PLAYER [#{PLAYER_MARKER}] SCORE : #{sco['Player']}"
-  puts "COMPUTER [#{COMPUTER_MARKER}] SCORE : #{sco['Computer']}"
+  puts 'TIC-TAC-TOE'
+  puts "FIRST PLAYER TO SCORE #{WIN_LIMIT} WINS!"
+  puts "#{info['User']} [#{PLAYER_MARKER}] SCORE : #{info['Player']}"
+  puts "COMPUTER [#{COMPUTER_MARKER}] SCORE : #{info['Computer']}"
+end
+
+def draw_board_row(col1, col2, col3)
+  puts '     |     |     '
+  puts "  #{col1}  |  #{col2}  |  #{col3}  "
+  puts '     |     |     '
 end
 
 def display_board(brd)
-  puts '     |     |     '
-  puts "  #{brd[1]}  |  #{brd[2]}  |  #{brd[3]}  "
-  puts '     |     |     '
+  draw_board_row(brd[1], brd[2], brd[3])
   puts '-----+-----+-----'
-  puts '     |     |     '
-  puts "  #{brd[4]}  |  #{brd[5]}  |  #{brd[6]}  "
-  puts '     |     |     '
+  draw_board_row(brd[4], brd[5], brd[6])
   puts '-----+-----+-----'
-  puts '     |     |     '
-  puts "  #{brd[7]}  |  #{brd[8]}  |  #{brd[9]}  "
-  puts '     |     |     '
+  draw_board_row(brd[7], brd[8], brd[9])
+end
+
+def choose_first_player
+  play = ''
+  loop do
+    prompt 'Who goes first? (p for the human player, c for computer):'
+    play = gets.chomp.downcase
+    break if play =~ /[pc]{1}/
+
+    puts 'Invalid Input. Please select from the options provided.'
+  end
+
+  play == 'p' ? 'player' : 'computer'
 end
 
 def initialize_board
@@ -49,8 +64,37 @@ def initialize_board
   new_board
 end
 
-def initialize_score
-  { 'Player' => 0, 'Computer' => 0 }
+def valid_name_format?(str)
+  str.match(/^[A-Z]+[ ]?[A-Z]*$/i) && !str.empty?
+end
+
+def retrieve_username
+  loop do
+    prompt('Please enter your name:')
+    name = gets.chomp
+    return name.upcase if valid_name_format?(name)
+
+    puts 'Bad Username. Please try again. Check no numbers or spaces.'
+  end
+end
+
+def initialize_gameinfo
+  game_information = { 'Player' => 0, 'Computer' => 0 }
+  initialize_username!(game_information)
+  initialize_first_player!(game_information)
+  game_information
+end
+
+def initialize_first_player!(info)
+  info['first_player'] = if FIRST_PLAYER == 'choose'
+                           choose_first_player
+                         else
+                           FIRST_PLAYER
+                         end
+end
+
+def initialize_username!(info)
+  info['User'] = retrieve_username
 end
 
 def empty_squares(brd)
@@ -61,17 +105,43 @@ def player_places_piece!(brd)
   square = ''
   loop do
     prompt "Choose a square (#{joinor(empty_squares(brd))}):"
-    square = gets.chomp.to_i
-    break if empty_squares(brd).include?(square)
+    input = gets.chomp
+    square = input.to_i
+    break if empty_squares(brd).include?(square) && input =~ /^[1-9]{1}$/
 
-    puts 'Bad Input. Please try again'
+    puts 'Invalid Input. Please select from the options provided.'
   end
   brd[square] = PLAYER_MARKER
 end
 
 def computer_places_piece!(brd)
-  square = empty_squares(brd).sample
-  brd[square] = COMPUTER_MARKER
+  move = retrieve_win_or_block_move(brd, COMPUTER_MARKER)
+  move ||= retrieve_win_or_block_move(brd, PLAYER_MARKER)
+  move ||= retrieve_center_or_random_move(brd)
+  brd[move] = COMPUTER_MARKER
+end
+
+def place_piece!(brd, cur_player)
+  if cur_player == 'player'
+    player_places_piece!(brd)
+  else
+    computer_places_piece!(brd)
+  end
+end
+
+def retrieve_win_or_block_move(brd, marker)
+  result = nil
+  WINNING_LINES.each do |line|
+    if brd.values_at(*line).count(marker) == 2
+      result = line.detect { |e| brd[e] == INITIAL_MARKER }
+      break if result
+    end
+  end
+  result
+end
+
+def retrieve_center_or_random_move(brd)
+  brd[5] == INITIAL_MARKER ? 5 : empty_squares(brd).sample
 end
 
 def someone_won?(brd)
@@ -90,38 +160,86 @@ def board_full?(brd)
   empty_squares(brd).empty?
 end
 
-def refresh_display(sco, brd)
-  display_scores(sco)
+def refresh_display(info, brd)
+  display_scores(info)
   display_board(brd)
 end
 
-score = initialize_score
-loop do
-  board = initialize_board
-  refresh_display(score, board)
-
-  loop do
-    player_places_piece!(board)
-    computer_places_piece!(board)
-    refresh_display(score, board)
-    break if someone_won?(board) || board_full?(board)
-  end
-
-  if someone_won?(board)
-    score[display_winner(board)] += 1
-    refresh_display(score, board)
-    prompt "#{display_winner(board)} won the round!"
-  else
-    score['Player'] += 1
-    score['Computer'] += 1
-    refresh_display(score, board)
-    prompt 'This round is a tie!'
-  end
-
-  
-  prompt 'Play again? (y or n)'
-  answer = gets.chomp
-  break unless answer.downcase.start_with?('y')
+def alternate_player(cur_player)
+  cur_player == 'player' ? 'computer' : 'player'
 end
 
-puts 'Thanks for Playing!!'
+def incr_score_win!(info, brd)
+  info[display_winner(brd)] += 1
+  name = if display_winner(brd) == 'Player'
+           info['User']
+         else
+           'Computer'
+         end
+  puts "#{name} won the round!"
+end
+
+def incr_score_tie!(info)
+  info['Player'] += 1
+  info['Computer'] += 1
+  puts 'This round is a tie!'
+end
+
+def display_lastround_winner(info)
+  if info['Player'] == info['Computer']
+    puts 'You Tied!'
+  elsif info['Player'] > info['Computer']
+    puts 'Player Wins!'
+  else
+    puts 'Computer Wins!'
+  end
+end
+
+def score_reached_limit?(info)
+  info['Player'] >= WIN_LIMIT || info['Computer'] >= WIN_LIMIT
+end
+
+def play_again?(str)
+  str.match(/^[y]?$/i) && !str.empty?
+end
+
+# MAIN GAME LOGIC --------------------------------------
+
+loop do
+  system 'clear' || 'cls'
+  gameinfo = initialize_gameinfo
+  loop do
+    board = initialize_board
+    current_player = gameinfo['first_player']
+    refresh_display(gameinfo, board)
+
+    # ROUND LOOP ------------------------------------------
+
+    loop do
+      place_piece!(board, current_player)
+      current_player = alternate_player(current_player)
+      refresh_display(gameinfo, board)
+      break if someone_won?(board) || board_full?(board)
+    end
+
+    if someone_won?(board)
+      incr_score_win!(gameinfo, board)
+    else
+      incr_score_tie!(gameinfo)
+    end
+
+    sleep(2)
+    refresh_display(gameinfo, board)
+
+    break if score_reached_limit?(gameinfo)
+  end
+
+  display_lastround_winner(gameinfo)
+  puts 'Would you like to play another game? '
+  puts "Enter the 'Y' key to restart the game, "\
+          'all other keys will close the program.'
+  break unless play_again?(gets.chomp)
+end
+
+system 'clear' || 'cls'
+puts 'Thanks for Playing. Take it easy!'

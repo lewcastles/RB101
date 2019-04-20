@@ -1,0 +1,20 @@
+Style/DoubleNegation:
+  Description: 'Checks for uses of double negation (!!).'
+  Enabled: false
+
+Style/MutableConstant:
+  Description: Freeze mutable constants.
+  Enabled: false
+
+Metrics/MethodLength:
+  Description: 'Avoid methods longer than 15 lines of code.'
+  Enabled: true
+  CountComments: false  # count full line comments?
+  Max: 15
+
+Metrics/AbcSize:
+  Description: >-
+                 A calculated magnitude based on number of assignments,
+                 branches, and conditions.
+  Enabled: true
+  Max: 18
