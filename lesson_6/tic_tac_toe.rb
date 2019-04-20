@@ -7,7 +7,7 @@ WINNING_LINES = [
   [1, 5, 9], [3, 5, 7]
 ]
 FIRST_PLAYER = 'choose'
-WIN_LIMIT = 5
+WIN_LIMIT = 2
 
 def prompt(msg)
   puts "=> #{msg}"
@@ -52,7 +52,7 @@ def choose_first_player
     play = gets.chomp.downcase
     break if play =~ /[pc]{1}/
 
-    puts 'Invalid Input. Please select from the options provided.'
+    prompt 'Invalid Input. Please select from the options provided.'
   end
 
   play == 'p' ? 'player' : 'computer'
@@ -70,11 +70,11 @@ end
 
 def retrieve_username
   loop do
-    prompt('Please enter your name:')
+    prompt 'Please enter your name:'
     name = gets.chomp
     return name.upcase if valid_name_format?(name)
 
-    puts 'Bad Username. Please try again. Check no numbers or spaces.'
+    prompt 'Bad Username. Please try again. Check no numbers or spaces.'
   end
 end
 
@@ -109,7 +109,7 @@ def player_places_piece!(brd)
     square = input.to_i
     break if empty_squares(brd).include?(square) && input =~ /^[1-9]{1}$/
 
-    puts 'Invalid Input. Please select from the options provided.'
+    prompt 'Invalid Input. Please select from the options provided.'
   end
   brd[square] = PLAYER_MARKER
 end
@@ -176,27 +176,34 @@ def incr_score_win!(info, brd)
          else
            'Computer'
          end
-  puts "#{name} won the round!"
+  prompt "#{name} won the round!"
 end
 
 def incr_score_tie!(info)
   info['Player'] += 1
   info['Computer'] += 1
-  puts 'This round is a tie!'
+  prompt 'This round is a tie!'
 end
 
 def display_lastround_winner(info)
   if info['Player'] == info['Computer']
-    puts 'You Tied!'
+    prompt 'You Tied!'
   elsif info['Player'] > info['Computer']
-    puts 'Player Wins!'
+    prompt 'Player Wins!'
   else
-    puts 'Computer Wins!'
+    prompt 'Computer Wins!'
   end
 end
 
 def score_reached_limit?(info)
   info['Player'] >= WIN_LIMIT || info['Computer'] >= WIN_LIMIT
+end
+
+def prompt_user_play_again
+  prompt 'Would you like to play another game? '
+  prompt "Enter the 'Y' key to restart the game, "\
+          'all other keys will close the program.'
+  gets.chomp
 end
 
 def play_again?(str)
@@ -235,11 +242,9 @@ loop do
   end
 
   display_lastround_winner(gameinfo)
-  puts 'Would you like to play another game? '
-  puts "Enter the 'Y' key to restart the game, "\
-          'all other keys will close the program.'
-  break unless play_again?(gets.chomp)
+  str = prompt_user_play_again
+  break unless play_again?(str)
 end
 
 system 'clear' || 'cls'
-puts 'Thanks for Playing. Take it easy!'
+prompt 'Thanks for Playing. Take it easy!'
