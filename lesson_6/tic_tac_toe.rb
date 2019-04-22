@@ -27,8 +27,8 @@ def display_scores(info)
   system 'clear' || 'cls'
   puts 'TIC-TAC-TOE'
   puts "FIRST PLAYER TO SCORE #{WIN_LIMIT} WINS!"
-  puts "#{info['User']} [#{PLAYER_MARKER}] SCORE : #{info['Player']}"
-  puts "COMPUTER [#{COMPUTER_MARKER}] SCORE : #{info['Computer']}"
+  puts "#{info['User']} [#{PLAYER_MARKER}] SCORE : #{info['player_score']}"
+  puts "COMPUTER [#{COMPUTER_MARKER}] SCORE : #{info['computer_score']}"
 end
 
 def draw_board_row(col1, col2, col3)
@@ -50,7 +50,7 @@ def choose_first_player
   loop do
     prompt 'Who goes first? (p for the human player, c for computer):'
     play = gets.chomp.downcase
-    break if play =~ /[pc]{1}/
+    break if play =~ /^[pc]{1}$/
 
     prompt 'Invalid Input. Please select from the options provided.'
   end
@@ -79,7 +79,8 @@ def retrieve_username
 end
 
 def initialize_gameinfo
-  game_information = { 'Player' => 0, 'Computer' => 0 }
+  game_information = { 'player_score' => 0, 'computer_score' => 0,
+                       'first_player' => '', 'username' => '' }
   initialize_username!(game_information)
   initialize_first_player!(game_information)
   game_information
@@ -145,13 +146,13 @@ def retrieve_center_or_random_move(brd)
 end
 
 def someone_won?(brd)
-  !!display_winner(brd)
+  !!winner(brd)
 end
 
-def display_winner(brd)
+def winner(brd)
   WINNING_LINES.each do |line|
-    return 'Player' if brd.values_at(*line).count(PLAYER_MARKER) == 3
-    return 'Computer' if brd.values_at(*line).count(COMPUTER_MARKER) == 3
+    return 'player' if brd.values_at(*line).count(PLAYER_MARKER) == 3
+    return 'computer' if brd.values_at(*line).count(COMPUTER_MARKER) == 3
   end
   nil
 end
@@ -169,34 +170,22 @@ def alternate_player(cur_player)
   cur_player == 'player' ? 'computer' : 'player'
 end
 
-def incr_score_win!(info, brd)
-  info[display_winner(brd)] += 1
-  name = if display_winner(brd) == 'Player'
-           info['User']
-         else
-           'Computer'
-         end
-  prompt "#{name} won the round!"
-end
-
-def incr_score_tie!(info)
-  info['Player'] += 1
-  info['Computer'] += 1
-  prompt 'This round is a tie!'
-end
-
-def display_lastround_winner(info)
-  if info['Player'] == info['Computer']
-    prompt 'You Tied!'
-  elsif info['Player'] > info['Computer']
-    prompt 'Player Wins!'
+def score_winner!(info, brd)
+  if winner(brd) == 'player'
+    info['player_score'] += 1
+    prompt " #{info['username']} won the round!"
   else
-    prompt 'Computer Wins!'
+    info['computer_score'] += 1
+    prompt 'The computer won the round!'
   end
 end
 
+def player_won_match?(info)
+  info['player_score'] > info['computer_score']
+end
+
 def score_reached_limit?(info)
-  info['Player'] >= WIN_LIMIT || info['Computer'] >= WIN_LIMIT
+  info['player_score'] >= WIN_LIMIT || info['computer_score'] >= WIN_LIMIT
 end
 
 def prompt_user_play_again
@@ -230,9 +219,9 @@ loop do
     end
 
     if someone_won?(board)
-      incr_score_win!(gameinfo, board)
+      score_winner!(gameinfo, board)
     else
-      incr_score_tie!(gameinfo)
+      prompt 'This round is a tie!'
     end
 
     sleep(2)
@@ -241,7 +230,12 @@ loop do
     break if score_reached_limit?(gameinfo)
   end
 
-  display_lastround_winner(gameinfo)
+  if player_won_match?(gameinfo)
+    prompt 'Player Wins the Match!'
+  else
+    prompt 'Computer Wins the Match!'
+  end
+
   str = prompt_user_play_again
   break unless play_again?(str)
 end

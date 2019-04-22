@@ -18,3 +18,7 @@ Metrics/AbcSize:
                  branches, and conditions.
   Enabled: true
   Max: 18
+
+Metrics/BlockLength:
+Description: Limit size of blocks.
+Enabled: false
