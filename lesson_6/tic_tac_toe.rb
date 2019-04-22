@@ -184,7 +184,7 @@ def player_won_match?(info)
   info['player_score'] > info['computer_score']
 end
 
-def score_reached_limit?(info)
+def match_ended?(info)
   info['player_score'] >= WIN_LIMIT || info['computer_score'] >= WIN_LIMIT
 end
 
@@ -197,6 +197,14 @@ end
 
 def play_again?(str)
   str.match(/^[y]?$/i) && !str.empty?
+end
+
+def display_match_winner(info)
+  if player_won_match?(info)
+    prompt 'Player Wins the Match!'
+  else
+    prompt 'Computer Wins the Match!'
+  end
 end
 
 # MAIN GAME LOGIC --------------------------------------
@@ -227,14 +235,10 @@ loop do
     sleep(2)
     refresh_display(gameinfo, board)
 
-    break if score_reached_limit?(gameinfo)
+    break if match_ended?(gameinfo)
   end
 
-  if player_won_match?(gameinfo)
-    prompt 'Player Wins the Match!'
-  else
-    prompt 'Computer Wins the Match!'
-  end
+  display_match_winner(gameinfo)
 
   str = prompt_user_play_again
   break unless play_again?(str)
