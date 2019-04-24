@@ -20,5 +20,5 @@ Metrics/AbcSize:
   Max: 18
 
 Metrics/BlockLength:
-Description: Limit size of blocks.
-Enabled: false
+  Description: Limit size of blocks.
+  Enabled: false
