@@ -1,6 +1,5 @@
 =begin
 
-
 You will be given a number and you will need to return 
 it as a string in expanded form. For example:
 
@@ -9,8 +8,6 @@ expanded_form(42); # Should return '40 + 2'
 expanded_form(70304); # Should return '70000 + 300 + 4'
 
 Note: All numbers will be whole numbers greater than 0.
-
-
 
 input: integer
 
@@ -35,6 +32,4 @@ end
 p expanded_form(12); # Should return '10 + 2'
 p expanded_form(42); # Should return '40 + 2'
 p expanded_form(70304); # Should return '70000 + 300 + 4'
-
-
 # 10 min
