@@ -1,6 +1,7 @@
 Projects to Complete:
 TTT rewrite
 21
+100 katas in CW
 
 
 
