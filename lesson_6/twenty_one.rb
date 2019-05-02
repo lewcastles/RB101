@@ -1,3 +1,5 @@
+GAME_VALUE = 21
+DEALER_HITS_BELOW = 17
 CARD_VALUES = %w[2 3 4 5 6 7 8 9 J Q K A]
 CARD_SUITS = %w[D C H S]
 
@@ -38,7 +40,7 @@ def value_of_hand(hand)
   end
 
   values.select { |value| value == 'A' }.count.times do
-    total -= 10 if total > 21
+    total -= 10 if total > GAME_VALUE
   end
 
   total
@@ -58,8 +60,8 @@ def deal_card!(deck)
   deck.delete(deck.sample)
 end
 
-def busted?(hand)
-  value_of_hand(hand) > 21
+def busted?(value)
+  value > GAME_VALUE
 end
 
 def display_move_selected(move, cur_player)
@@ -94,7 +96,7 @@ def display_hands(playerhand, dealerhand, cur_player)
 end
 
 def retrieve_dealers_move(hand)
-  value_of_hand(hand) <= 16 ? 'h' : 's'
+  value_of_hand(hand) < DEALER_HITS_BELOW ? 'h' : 's'
 end
 
 def play_again?
@@ -104,18 +106,29 @@ def play_again?
   answer.downcase.start_with?('y')
 end
 
-# CREATE DECK AND DEAL STARTING HANDS ------------------
+def deal_starting_hands!(playerhand, dealerhand, card_deck)
+  2.times do
+    playerhand << deal_card!(card_deck)
+    dealerhand << deal_card!(card_deck)
+  end
+end
+
+score = {player: 0, dealer: 0}
+
+
 loop do
-  card_deck = initialize_deck
+
+  # NEW DECK, RESET SCORES ------------------------------
   players_hand = []
   dealers_hand = []
+  players_hand_value = 0
+  dealers_hand_value = 0
   current_player = 'player'
+  card_deck = initialize_deck
 
-  2.times do
-    players_hand << deal_card!(card_deck)
-    dealers_hand << deal_card!(card_deck)
-  end
+  # DEAL STARTING HANDS AND SHOW CARDS ------------------
 
+  deal_starting_hands!(players_hand, dealers_hand, card_deck)
   display_hands(players_hand, dealers_hand, current_player)
 
   # PLAYERS TURN
@@ -125,10 +138,11 @@ loop do
     players_hand << deal_card!(card_deck) if players_move == 'h'
     display_move_selected(players_move, current_player)
     display_hands(players_hand, dealers_hand, current_player)
-    break if players_move == 's' || busted?(players_hand)
+    players_hand_value = value_of_hand(players_hand)
+    break if players_move == 's' || busted?(players_hand_value)
   end
 
-  if busted?(players_hand)
+  if busted?(players_hand_value)
     puts 'YOU LOSE: PLAYER BUSTED'
     play_again? ? next : break
   end
@@ -143,14 +157,15 @@ loop do
     dealers_hand << deal_card!(card_deck) if dealers_move == 'h'
     display_move_selected(dealers_move, current_player)
     display_hands(players_hand, dealers_hand, current_player)
-    break if dealers_move == 's' || busted?(players_hand)
+    dealers_hand_value = value_of_hand(dealers_hand)
+    break if dealers_move == 's' || busted?(dealers_hand_value)
   end
 
-  if busted?(dealers_hand)
+  if busted?(dealers_hand_value)
     puts 'YOU WIN: DEALER BUSTED'
-  elsif value_of_hand(dealers_hand) == value_of_hand(players_hand)
+  elsif dealers_hand_value == players_hand_value
     puts 'YOU TIED!'
-  elsif value_of_hand(dealers_hand) > value_of_hand(players_hand)
+  elsif dealers_hand_value > players_hand_value
     puts 'YOU LOSE!'
   else
     puts 'YOU WIN!'
