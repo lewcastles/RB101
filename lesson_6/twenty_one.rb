@@ -1,5 +1,6 @@
 GAME_VALUE = 21
 DEALER_HITS_BELOW = 17
+ROUNDS_PER_GAME = 2
 CARD_VALUES = %w[2 3 4 5 6 7 8 9 J Q K A]
 CARD_SUITS = %w[D C H S]
 
@@ -133,6 +134,16 @@ def display_round_results(busted_flags, dealervalue, playervalue, scr)
   sleep(4)
 end
 
+def display_game_results(score)
+  puts '-' * 20
+  if score[:dealer] > score[:player]
+    puts "Dealer wins the game: #{score[:dealer]} to #{score[:player]}"
+  else
+    puts "Player wins the game: #{score[:dealer]} to #{score[:player]}"
+  end
+  puts '-' * 20
+end
+
 score = { player: 0, dealer: 0 }
 loop do
   # NEW ROUND ------------------------------------------
@@ -182,4 +193,6 @@ loop do
 
   busted_flags[:dealer] = true if busted?(dealers_hand_value)
   display_round_results(busted_flags, dealers_hand_value, players_hand_value, score)
+  break if score.values.any? { |scr| scr >= ROUNDS_PER_GAME}
 end
+display_game_results(score)
