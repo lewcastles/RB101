@@ -1,6 +1,8 @@
 GAME_VALUE = 21
 DEALER_HITS_BELOW = 17
-ROUNDS_PER_GAME = 2
+SCORE_TO_WIN_GAME = 2
+MOVE_DELAY = 1.2
+ROUND_DELAY = 3
 CARD_VALUES = %w[2 3 4 5 6 7 8 9 J Q K A]
 CARD_SUITS = %w[D C H S]
 
@@ -18,10 +20,7 @@ def initialize_deck
   cards = []
   CARD_SUITS.each do |suit|
     CARD_VALUES.each do |value|
-      card = []
-      card[0] = value
-      card[1] = suit
-      cards << card
+      cards << [value, suit]
     end
   end
   cards
@@ -67,27 +66,25 @@ end
 
 def display_move_selected(move, cur_player)
   if move == 'h'
-    puts "#{cur_player.upcase} H I T S"
-    puts '-' * 20
+    puts "#{cur_player.upcase} HITS!"
   else
-    puts "#{cur_player.upcase} S T A Y S"
+    puts "#{cur_player.upcase} STAYS!"
   end
-  sleep(2)
+  sleep(MOVE_DELAY)
 end
 
-def display_current_score_and_turn(player, score)
+def display_current_score_and_turn(score)
   system 'clear' || 'cls'
-  puts "|Game: #{GAME_VALUE}|".center(20)
-  puts "|Dealer: #{score[:dealer]}|Player: #{score[:player]}|".center(20)
-  puts '-' * 20
-  puts "#{player.upcase}'S TURN"
+  puts "Playing #{GAME_VALUE} - First player to #{SCORE_TO_WIN_GAME} Wins!"
+  puts "Dealer Score: #{score[:dealer]}"
+  puts "Player Score: #{score[:player]}"
   puts '-' * 20
 end
 
 def display_hands(playerhand, dealerhand, cur_player, scr)
   list_player_cards = playerhand.map { |e| e[0] }
   list_dealer_cards = dealerhand.map { |e| e[0] }
-  display_current_score_and_turn(cur_player, scr)
+  display_current_score_and_turn(scr)
   if cur_player == 'player'
     puts "Dealer has #{list_player_cards[0]} and ?"
   else
@@ -101,11 +98,15 @@ def retrieve_dealers_move(hand)
   value_of_hand(hand) < DEALER_HITS_BELOW ? 'h' : 's'
 end
 
-def play_again?
-  puts '-' * 20
-  puts 'Do you want to play again? (y or n)'
-  answer = gets.chomp
-  answer.downcase.start_with?('y')
+def prompt_user_play_again
+  puts 'Would you like to play another game? '
+  puts "Enter the 'Y' key to restart the game, "\
+          'all other keys will close the program.'
+  gets.chomp
+end
+
+def play_again?(str)
+  str.match(/^[y]?$/i) && !str.empty?
 end
 
 def deal_starting_hands!(playerhand, dealerhand, card_deck)
@@ -115,84 +116,124 @@ def deal_starting_hands!(playerhand, dealerhand, card_deck)
   end
 end
 
-def display_round_results(busted_flags, dealervalue, playervalue, scr)
+def increment_score_counters!(busted_flags, dealerval, playerval, scr)
+  if      busted_flags[:player] then  scr[:dealer] += 1
+  elsif   busted_flags[:dealer] then  scr[:player] += 1
+  elsif   dealerval > playerval then  scr[:dealer] += 1
+  elsif   playerval > dealerval then  scr[:player] += 1
+  end
+end
+
+def display_round_result(busted_flags, dealerval, playerval)
   if busted_flags[:player]
     puts 'You Busted! Dealer Wins the Round!'
-    scr[:dealer] += 1
   elsif busted_flags[:dealer]
     puts 'Dealer Busted! You Win the Round!'
-    scr[:player] += 1
-  elsif dealervalue == playervalue
+  elsif dealerval == playerval
     puts 'Round Tied!!!'
-  elsif dealervalue > playervalue
-    puts "Dealer has #{dealervalue} vs Player's #{playervalue} | Dealer Wins the Round!"
-    scr[:dealer] += 1
+  elsif dealerval > playerval
+    puts "Dealer's #{dealerval} vs Player's #{playerval} | Dealer Wins Round!"
   else
-    puts "Player has #{playervalue} vs Dealer's #{dealervalue} | Player Wins the Round!"
-    scr[:player] += 1
+    puts "Player's' #{playerval} vs Dealer's #{dealerval} | Player Wins Round!"
   end
-  sleep(4)
+  sleep(ROUND_DELAY)
 end
 
 def display_game_results(score)
-  puts '-' * 20
+  system 'clear' || 'cls'
+  puts '-' * 40
   if score[:dealer] > score[:player]
     puts "Dealer wins the game: #{score[:dealer]} to #{score[:player]}"
   else
-    puts "Player wins the game: #{score[:dealer]} to #{score[:player]}"
+    puts "Player wins the game: #{score[:player]} to #{score[:dealer]}"
   end
-  puts '-' * 20
+  puts '-' * 40
 end
 
-score = { player: 0, dealer: 0 }
+def match_ended?(scr)
+  scr.values.any? { |e| e >= SCORE_TO_WIN_GAME }
+end
+
+def display_hands_with_move(player_hand, dealer_hand, cur_player, move, score)
+  display_hands(player_hand, dealer_hand, cur_player, score)
+  display_move_selected(move, cur_player)
+  display_hands(player_hand, dealer_hand, cur_player, score)
+end
+
+def hit?(move)
+  move == 'h'
+end
+
+def stayed?(move)
+  move == 's'
+end
+
+def game_target_value?(value)
+  value == GAME_VALUE
+end
+
 loop do
-  # NEW ROUND ------------------------------------------
-  card_deck = initialize_deck
-  players_hand = []
-  dealers_hand = []
-  players_hand_value = 0
-  dealers_hand_value = 0
-  current_player = 'player'
-  busted_flags = { player: false, dealer: false }
-
-  # DEAL STARTING HANDS AND SHOW CARDS ------------------
-
-  deal_starting_hands!(players_hand, dealers_hand, card_deck)
-  display_hands(players_hand, dealers_hand, current_player, score)
-
-  # PLAYERS TURN ----------------------------------------
+  score = { player: 0, dealer: 0 }
   loop do
-    players_move = retrieve_player_move
-    display_hands(players_hand, dealers_hand, current_player, score)
-    players_hand << deal_card!(card_deck) if players_move == 'h'
-    display_move_selected(players_move, current_player)
-    display_hands(players_hand, dealers_hand, current_player, score)
-    players_hand_value = value_of_hand(players_hand)
-    break if players_move == 's' || busted?(players_hand_value)
-  end
+    card_deck = initialize_deck
+    players_hand = []
+    dealers_hand = []
+    players_hand_value = 0
+    dealers_hand_value = 0
+    current_player = 'player'
+    busted_flags = { player: false, dealer: false }
 
-  if busted?(players_hand_value)
-    busted_flags[:player] = true 
-    display_round_results(busted_flags, dealers_hand_value, players_hand_value, score)
-    next
-  end
+    # DEAL STARTING HANDS AND SHOW CARDS ------------------
 
-  # DEALERS TURN -----------------------------------------
-  current_player = 'dealer'
-  display_hands(players_hand, dealers_hand, current_player, score)
-
-  loop do
-    dealers_move = retrieve_dealers_move(dealers_hand)
+    deal_starting_hands!(players_hand, dealers_hand, card_deck)
     display_hands(players_hand, dealers_hand, current_player, score)
-    dealers_hand << deal_card!(card_deck) if dealers_move == 'h'
-    display_move_selected(dealers_move, current_player)
+
+    # PLAYERS TURN ----------------------------------------
+    loop do
+      players_move = retrieve_player_move
+      players_hand << deal_card!(card_deck) if hit?(players_move)
+      display_hands_with_move(players_hand, dealers_hand, current_player, \
+                              players_move, score)
+      players_hand_value = value_of_hand(players_hand)
+      break if stayed?(players_move) || busted?(players_hand_value) || \
+               game_target_value?(players_hand_value)
+    end
+
+    if busted?(players_hand_value)
+      busted_flags[:player] = true
+      display_round_result(busted_flags, dealers_hand_value, players_hand_value)
+      increment_score_counters!(busted_flags, dealers_hand_value, \
+                                players_hand_value, score)
+      match_ended?(score) ? break : next
+    end
+
+    # DEALERS TURN -----------------------------------------
+    current_player = 'dealer'
     display_hands(players_hand, dealers_hand, current_player, score)
     dealers_hand_value = value_of_hand(dealers_hand)
-    break if dealers_move == 's' || busted?(dealers_hand_value)
+
+    loop do
+      dealers_move = retrieve_dealers_move(dealers_hand)
+      dealers_hand << deal_card!(card_deck) if hit?(dealers_move)
+      display_hands_with_move(players_hand, dealers_hand, current_player, \
+                              dealers_move, score)
+      dealers_hand_value = value_of_hand(dealers_hand)
+      break if stayed?(dealers_move) || busted?(dealers_hand_value)
+    end
+
+    # ROUND END UPDATE SCORE --------------------------------
+    busted_flags[:dealer] = true if busted?(dealers_hand_value)
+    display_round_result(busted_flags, dealers_hand_value, players_hand_value)
+    increment_score_counters!(busted_flags, dealers_hand_value, \
+                              players_hand_value, score)
+
+    break if match_ended?(score)
   end
 
-  busted_flags[:dealer] = true if busted?(dealers_hand_value)
-  display_round_results(busted_flags, dealers_hand_value, players_hand_value, score)
-  break if score.values.any? { |scr| scr >= ROUNDS_PER_GAME}
+  # MATCH END ------------------------------------------------
+
+  display_game_results(score)
+
+  str = prompt_user_play_again
+  break unless play_again?(str)
 end
-display_game_results(score)
