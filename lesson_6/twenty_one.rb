@@ -1,6 +1,6 @@
 GAME_VALUE = 21
 DEALER_HITS_BELOW = 17
-SCORE_TO_WIN_GAME = 5
+SCORE_TO_WIN_GAME = 3
 MOVE_DELAY = 1.2
 ROUND_DELAY = 3
 CARD_VALUES = %w[2 3 4 5 6 7 8 9 J Q K A]
@@ -86,7 +86,7 @@ def display_hands(playerhand, dealerhand, cur_player, scr)
   list_dealer_cards = dealerhand.map { |e| e[0] }
   display_current_score_and_turn(scr)
   if cur_player == 'player'
-    puts "Dealer has #{list_player_cards[0]} and ?"
+    puts "Dealer has #{list_dealer_cards[0]} and ?"
   else
     puts "Dealer has #{joinor(list_dealer_cards, ',', 'and')}"
   end
@@ -101,12 +101,21 @@ end
 def prompt_user_play_again
   puts 'Would you like to play another game? '
   puts "Enter the 'Y' key to restart the game, "\
-          'all other keys will close the program.'
-  gets.chomp
+  "'N' key to close the program."
+  loop do
+    answer = gets.chomp
+    return answer if valid_y_n_key(answer)
+
+    puts 'Invalid Entry. Please try again.'
+  end
+end
+
+def valid_y_n_key(str)
+  str.match(/^[yn]?$/i) && !str.empty?
 end
 
 def play_again?(str)
-  str.match(/^[y]?$/i) && !str.empty?
+  str.match(/^[y]?$/i)
 end
 
 def deal_starting_hands!(playerhand, dealerhand, card_deck)
@@ -172,6 +181,10 @@ def game_target_value?(value)
   value == GAME_VALUE
 end
 
+def blackjack?(hand)
+  hand.size == 2 && value_of_hand(hand) == GAME_VALUE
+end
+
 loop do
   score = { player: 0, dealer: 0 }
   loop do
@@ -187,6 +200,17 @@ loop do
 
     deal_starting_hands!(players_hand, dealers_hand, card_deck)
     display_hands(players_hand, dealers_hand, current_player, score)
+
+    if blackjack?(players_hand) || blackjack?(dealers_hand)
+      current_player = 'dealer'
+      display_hands(players_hand, dealers_hand, current_player, score)
+      puts 'BLACKJACK!!'
+
+      display_round_result(busted_flags, value_of_hand(dealers_hand), value_of_hand(players_hand))
+      increment_score_counters!(busted_flags, value_of_hand(dealers_hand), \
+                                value_of_hand(players_hand), score)
+      match_ended?(score) ? break : next
+    end
 
     # PLAYERS TURN ----------------------------------------
     loop do
@@ -234,6 +258,6 @@ loop do
 
   display_game_results(score)
 
-  str = prompt_user_play_again
-  break unless play_again?(str)
+  response = prompt_user_play_again
+  break unless play_again?(response)
 end
