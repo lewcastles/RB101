@@ -10,13 +10,14 @@
 * Selection
 
 ### Variables
+Accessible
 * Variable - A symbolic name or alias for an object, by convention variables are used where they are expected to reference more than one value
 * Constant - A symbolic name or alias for an object that is not expected to change where it is pointing.
 * Initialized - First time you assign certain value to some local variable you are initializing it.
 * Assigning/assignment - Assign an object to a symbolic name(variable/constant).
 * Reassigned/reassignment - Reset a symbolic name(variable/constant) to point at a different object.
 * Referencing - Symbolic Names(variables/constants) reference the objects which are assigned to them.
-* Pointer/Pointing - Essentially the same as referencing except you can point at nothing (null)
+* Pointer/Pointing - Interchangable with referencing.
 * Shadowing
 
 ```ruby
@@ -52,3 +53,12 @@ a = 'goodbye'
 * Array
 * Hash
 * Syntactical sugar - A shorthand feature in a programming language that generally allows for easier comprehension of commonly performed tasks ex: `counter += 1` over `counter = counter + 1`
+
+
+
+### Other
+* Operator
+* Test Expression
+* Evaluation
+* Destructive Method
+* Append

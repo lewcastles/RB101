@@ -1,9 +1,10 @@
 ## RB101 - Written Evaluation
 
+>Written Assessment:
+3 hours - Open book but do not blindly rely on docs, timed agressively.
+
 ### Written evaluation checklist:
 
-
-* [ ] Answering questions clearly and with precision.
 * [ ] Watch prep videos w/ notes.
 * [ ] Read Srdjan guide w/ notes.
 * [X] Read Dalibor guide w/ notes.
@@ -19,6 +20,17 @@
 * [ ] Variable references and mutability of Ruby objects.
 * [ ] Mutating and non-mutating methods in Ruby.
 * [ ] Object passing in Ruby - pass by reference or pass by value.
+* [ ] Mock Test
+
+
+### Recommendations
+* Write notes in markdown, exams are written in this format.
+* Use Flash cards for key terminology: Invoke, Call, * Parameters, Arguments.
+* While working through the assessment questions it is useful to run your code often to check it, so make sure to have either ruby document/terminal or an online repl prepared beforehand.
+>Recommended exam plan:
+>1. Orientation (quick run through all the questions — 2-5 minutes)
+>2. Reading carefully (!) assignments and answering them in order **7-9mins/question**
+>3. Review (with remaining time.)
 
 ### Best practice for answering exam style questions:
 
@@ -30,6 +42,7 @@ Questions are testing:
 * ability to present information in a clear/concise manner.
 
 Because of this ensure the following:
+* Do not answer line-by-line unless question specfically asks for it.
 * Read through the entire exam to see an approximation of what is expected then plan accordingly.
 * **READ THE QUESTION, THEN READ IT AGAIN. They are designed to lead you to the answer.**
 * Identify key fundamental concept(s) being demonstrated in the question.
@@ -37,15 +50,9 @@ Because of this ensure the following:
 * Answer with extreme precision. eg., say "method definition" or "method invocation" as opposed to just "method". _**Precise definitions, return, mutation, output & side effects**_
 * Highlight specific syntactical convention / technical observations where relevant to the question i.e the fact do..end signifies a block is important if we talk about scoping rules inside said block.
 * Keep text readable, use MD features to help. Block of text is a no-no.
-* If referencing code.Use irb. Check results and return values. Test cases.
+* If referencing code. Use irb. Check results and return values. Test cases.
 
 
-Recommended plan:
 
-
->1. Orientation (quick run through all the questions — 5 minutes)
->2. Reading carefully (!) assignments and answering them in order just in proper (not excessive) time
->3. (Second round of deeper elaborations of your answers — or at least some of the answers — in time which remains)
->4. Review (15–20 minutes)
 
 
